@@ -8,7 +8,9 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - export AWS_ACCESS_KEY_ID=AKIAZBCTBOHB6WZZXPW2
+      - export AWS_SECRET_ACCESS_KEY=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
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/s5s4l6z8
       - REPOSITORY_URI=public.ecr.aws/s5s4l6z8/test1
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
