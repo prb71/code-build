@@ -1,0 +1,30 @@
+---
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+  pre_build:
+    commands:
+      - apt-get update && curl -sL https://deb.nodesource.com/setup_14.x | sudo
+        bash - && apt-get install -y nodejs
+  build:
+    commands:
+      - chmod +x ./scan.sh
+      - ./scan.sh $sonar_url $sonar_user_name $sonar_password $github_token
+        $github_repo_url $service_name $github_user_name $programming_language
+  post_build:
+    commands:
+      - codebuildID=$(echo $CODEBUILD_BUILD_ID | cut -d ":" -f2)
+      - >-
+        if [ $CODEBUILD_BUILD_SUCCEEDING == 0 ]; then
+
+        aws logs get-log-events --log-group-name /aws/codebuild/$project_name --log-stream-name $codebuildID  | grep message |awk '{$1=""; print $0}' | tail -1000 > logs.txt
+
+        curl -F "file=@logs.txt" -F "initial_comment=Error Logs For the Codebuild" -F "channels=xxxxxxx" -H "Authorization: Bearer xoxp-xxxxxxxxxxxxxxxxxxxxxxxxxx" https://slack.com/api/files.upload
+
+        else
+
+        echo "nothing to do"
+
+        fi
