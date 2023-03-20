@@ -14,7 +14,7 @@ phases:
     commands:
       - if [ $CODEBUILD_BUILD_SUCCEEDING == 0 ]; then
 
-        aws logs get-log-events --log-group-name /codebuild/project --log-stream-name $CODEBUILD_BUILD_NUMBER  | grep message |awk '{$1=""; print $0}' | tail -1000 > logs.txt
+        aws logs get-log-events --log-group-name /aws/codebuild/$project_name --log-stream-name $CODEBUILD_BUILD_ID  | grep message |awk '{$1=""; print $0}' | tail -1000 > logs.txt
 
         "curl -F file=@logs.txt -F "initial_comment=Error Logs For the Codebuild" -F channels=xxxxxxx -H "Authorization: Bearer xoxp-xxxxxxxxxxxxxxxxxxxxxxxxxx" https://slack.com/api/files.upload"
 
